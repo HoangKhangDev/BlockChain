@@ -1,5 +1,5 @@
 const { createHash } = require('crypto');
-const dotenv=require('dotenv').config({ override: true })
+
 
 function Blockchain (){
       this.chain = [];
@@ -46,7 +46,6 @@ Blockchain.prototype.hashBlock = function(previousBlockHash,currentBlockHash,non
 }
 
 Blockchain.prototype.proofOfWork = function(previousBlockHash, currentBlockData){
-      console.log(process.env.primarykey)
       let nonce=0;
       let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
       while(hash.substring(0,4)!=='0000'){
