@@ -38,15 +38,14 @@ Blockchain.prototype.createNewTransaction = function(amount,sender,recipient){
             amount: amount,
             sender: sender,
             recipient: recipient,
-            transactionId : uuidv4.split('-').join('')
+            transactionId : uuidv4().replace(/-/g, '')
       }
-
       return this.getLastBlock()['index']+1;
 }
 
 Blockchain.prototype.addTransactionToPendingTransactions = function(transactionObj){
       this.pendingTransaction.push(transactionObj);
-      return this.getLastBlock()['index']+1;
+      return this.getLastBlock()['index']+1;x
 }
 
 Blockchain.prototype.hashBlock = function(previousBlockHash,currentBlockHash,nonce){

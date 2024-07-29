@@ -6,7 +6,9 @@ const Blockchain = require('../Blockchain');
 const requestPromise = require('request-promise');
 const { v4: uuidv4 } = require('uuid');
 
-const nodeAddress= uuidv4().split('-').join('');
+
+const nodeAddress = uuidv4().replace(/-/g, '')
+console.log(nodeAddress)
 const bitcoin = new Blockchain();
 
 // Define routes
@@ -103,5 +105,39 @@ router.post('/register-nodes-bulk',(req, res)=>{
       });
       res.json({ note: 'Bulk registration successful' });
 });
+
+
+// create a new transaction
+router.post('/transaction', function(req, res) {
+	const newTransaction = req.body;
+	const blockIndex = bitcoin.addTransactionToPendingTransactions(newTransaction);
+	res.json({ note: `Transaction will be added in block ${blockIndex}.` });
+});
+
+
+// broadcast transaction
+router.post('/transaction/broadcast', function(req, res) {
+	const newTransaction = bitcoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+	bitcoin.addTransactionToPendingTransactions(newTransaction);
+
+	const requestPromises = [];
+	bitcoin.networkNodes.forEach(networkNodeUrl => {
+		const requestOptions = {
+			uri: networkNodeUrl + '/transaction',
+			method: 'POST',
+			body: newTransaction,
+			json: true
+		};
+
+		requestPromise.push(requestPromise(requestOptions));
+	});
+
+	Promise.all(requestPromises)
+	.then(data => {
+		res.json({ note: 'Transaction created and broadcast successfully.' });
+	});
+});
+
+
 
 module.exports = router;

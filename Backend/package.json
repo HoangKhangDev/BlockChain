@@ -20,7 +20,7 @@
     "promise": "^8.3.0",
     "request-promise": "^4.2.6",
     "uuid": "^10.0.0"
-  },
+   },
   "devDependencies": {
     "nodemon": "^3.1.4"
   }
