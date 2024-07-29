@@ -32,16 +32,62 @@ router.get('/mine', (req, res) =>{
       };
       const nonce = bitcoin.proofOfWork(previousBlockHash, currentBlockData);
       const blockHash = bitcoin.hashBlock(previousBlockHash,currentBlockData, nonce);
-
-      bitcoin.createNewTransaction(12.5,"00",nodeAddress);
-
       const newBlock = bitcoin.createNewBlock(nonce,previousBlockHash,blockHash);
-      res.json({
-            note : "New block mined",
-            block : newBlock
+
+      const requestPromises = [];
+      bitcoin.networkNodes.forEach(newNodeUrl=>{
+            const requestOptions = {
+                  uri: newNodeUrl + '/receive-new-block',
+                  method: 'POST',
+                  body: { newBlock: newBlock},
+                  json: true
+            };
+            requestPromises.push(requestPromise(requestOptions));
+      });
+      
+      Promise.all(requestPromises)
+      .then(data => {
+            const requestOptions={
+                  uri: bitcoin.currentNodeUrl + '/receive-new-block',
+                  method: 'POST',
+                  body: { 
+                        amount:10,
+                        sender: "00",
+                        recipient: nodeAddress,
+                  },
+                  json: true
+            };
+            return requestPromise(requestOptions);
+      })
+      .then(data=>{
+            res.json({
+                  note : "New block mined & broadcasted ",
+                  block : newBlock
+            })
       })
 });
 
+router.post('/receive-new-block',(req,res)=>{
+      const newBlock = req.body.newBlock;
+      const lastBlock = bitcoin.getLastBlock();
+      const correctHash = (newBlock.hash === lastBlock.hash);
+      const correctIndex = (newBlock["index"] === lastBlock["index"]+1);
+
+      if(correctHash && correctIndex){
+            bitcoin.chain.push(newBlock);
+            bitcoin.pendingTransactions = [];
+            res.json({
+                  note: "New block received and added to chain",
+                  block: newBlock
+            });
+      }
+      else{
+            res.json({
+                  note: "Received block is invalid",
+                  block: newBlock
+            });
+      }
+})
 
 
 router.post('/register-and-broadcast-node',(req, res) => {
