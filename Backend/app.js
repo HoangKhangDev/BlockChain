@@ -5,6 +5,11 @@ const Blockchain = require('./Blockchain');
 const uuid = require('uuid/v1');
 const port = process.argv[2];
 const rp = require('request-promise');
+const fs = require('fs');
+// const generateRandomString = require("./function/randomNonce");
+
+
+
 
 const nodeAddress = uuid().split('-').join('');
 
@@ -13,6 +18,7 @@ const bitcoin = new Blockchain();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
 
 
 // get entire blockchain

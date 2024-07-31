@@ -1,6 +1,10 @@
 const sha256 = require('sha256');
 const currentNodeUrl = process.argv[3];
 const uuid = require('uuid/v1');
+const generateRandomString = require('./function/randomNonce');
+const noncekey = generateRandomString(6);
+
+console.log(noncekey)
 
 function Blockchain() {
 	this.chain = [];
@@ -9,7 +13,7 @@ function Blockchain() {
 	this.currentNodeUrl = currentNodeUrl;
 	this.networkNodes = [];
 
-	this.createNewBlock(100, '0', '0');
+	// this.createNewBlock(100, '0', '0');
 };
 
 
@@ -63,7 +67,7 @@ Blockchain.prototype.hashBlock = function(previousBlockHash, currentBlockData, n
 Blockchain.prototype.proofOfWork = function(previousBlockHash, currentBlockData) {
 	let nonce = 0;
 	let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
-	while (hash.substring(0, 4) !== '0000') {
+	while (hash.substring(0, 4) !== noncekey) {
 		nonce++;
 		hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
 	}
