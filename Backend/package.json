@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "node01": "nodemon -e js app.js 1000 http://localhost:1000",
+    "node01": "nodemon -e js,jsx,json,ejs app.js 1000 http://localhost:1000",
     "node02": "nodemon -e js app.js 2000 http://localhost:2000",
     "node03": "nodemon -e js app.js 3000 http://localhost:3000",
     "node04": "nodemon -e js app.js 4000 http://localhost:4000",
@@ -15,12 +15,22 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "express": "^4.19.2",
-    "promise": "^8.3.0",
-    "request-promise": "^4.2.6",
-    "uuid": "^10.0.0"
-   },
+    "axios": "^1.7.3",
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.6",
+    "dependencies": "^0.0.1",
+    "ejs": "^3.1.10",
+    "express": "^4.16.3",
+    "nodemon": "^1.17.3",
+    "random-word-syllables": "^1.0.1",
+    "random-words": "^2.0.1",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2",
+    "sha256": "^0.2.0",
+    "short-unique-id": "^5.2.0",
+    "syllable": "^3.6.0",
+    "uuid": "^3.2.1"
+  },
   "devDependencies": {
     "nodemon": "^3.1.4"
   }
