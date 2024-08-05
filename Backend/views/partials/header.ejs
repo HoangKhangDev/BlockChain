@@ -4,7 +4,7 @@
 <head>
       <meta charset="utf-8">
       <meta content="width=device-width, initial-scale=1.0" name="viewport">
-      <title> - QuickStart Bootstrap Template</title>
+      <title>Index - QuickStart Bootstrap Template</title>
       <meta content="" name="description">
       <meta content="" name="keywords">
 
@@ -27,7 +27,9 @@
 
       <!-- Main CSS File -->
       <link href="assets/css/main.css" rel="stylesheet">
-
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+            integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
       <!-- =======================================================
   * Template Name: QuickStart
   * Template URL: https://bootstrapmade.com/quickstart-bootstrap-startup-website-template/
@@ -39,52 +41,28 @@
 
 <body class="index-page">
 
-      <header id="header" class="header d-flex align-items-center fixed-top" disabled style="display: none;">
+      <header id="header" class="header d-flex align-items-center fixed-top">
             <div class="container-fluid container-xl position-relative d-flex align-items-center">
 
-
+                  <a href="index.html" class="logo d-flex align-items-center me-auto">
+                        <img src="assets/img/logo.png" alt="">
+                        <h1 class="sitename"></h1>
+                  </a>
 
                   <nav id="navmenu" class="navmenu">
-
+                        <ul>
+                              <li><a href="/home" class="">Home</a></li>
+                              <li><a href="/history">History</a></li>
+                              <li><a href="/profileTransaction">Transaction</a></li>
+                              <li><a href="/mine">Mine</a></li>
+                              <li><a href="/profile">Profile</a></li>
+                              <li><i class="fa-solid fa-user" style="color: burlywood;"></i> : <%= name %></li>
+                              <li class="mx-3"><i class="fa-solid fa-coins mx-1" style="color: yellow;"></i><input name="coin_header" value="<%= coin %>" style="border: 0;width: 60px;" disabled></li>
+                        </ul>
                         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
                   </nav>
-
+                  <a class="btn-getstarted text-warning " href="/logout">Logout <i
+                              class="fa-solid fa-right-from-bracket"></i></a>
 
             </div>
       </header>
-
-      <main class="main">
-
-            <!-- Hero Section -->
-            <section id="hero" class="hero section">
-                  <div class="hero-bg">
-                        <img src="assets/img/hero-bg-light.webp" alt="">
-                  </div>
-                  <div class="container text-center">
-                        <div class="d-flex flex-column justify-content-center align-items-center">
-                              <h1 data-aos="fade-up">Welcome to <span>QuickStart</span></h1>
-                              <!-- <p data-aos="fade-up" data-aos-delay="100">Quickly start your project now and set the
-                                    stage for success<br></p> -->
-                              <div class="d-flex" data-aos="fade-up my-3" data-aos-delay="200">
-                                    <a href="/register" class="btn-get-started">Register</a>
-                                    <a href="/login" class="btn-get-started mx-3 ">Login</a>
-                              </div>
-                              <img src="assets/img/hero-services-img.webp" class="img-fluid hero-img" alt=""
-                                    data-aos="zoom-out" data-aos-delay="300">
-                        </div>
-                  </div>
-
-            </section><!-- /Hero Section -->
-
-
-
-            <!-- Scroll Top -->
-            <a style="display: none;" href="#" id="scroll-top"
-                  class="scroll-top d-flex align-items-center justify-content-center"><i
-                        class="bi bi-arrow-up-short"></i></a>
-
-            <!-- Preloader -->
-            <div id="preloader"></div>
-
-<%- include('../partials/footer'); %>
-

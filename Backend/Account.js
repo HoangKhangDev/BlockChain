@@ -8,20 +8,76 @@ process.setMaxListeners(0);
 const uid = new ShortUniqueId();
 
 function Account (){
-      this.Accs=[
-            {
-                  "privateKey": sha256(Date.now().toString()),
-                  "publicKey": "0000",
-                  "password": sha256((Date.now()+3690).toString()),
-            }
-      ];
+      // this.Accs=[
+      //       {
+      //             privateKey: sha256(Date.now().toString()),
+      //             publicKey: "0000",
+      //             password: sha256((Date.now()+3690).toString()),
+      //     }
+      //];
 
+ // this.currentNodeUrl = currentNodeUrl;
+	// this.networkNodes = [];
+      // this.keys=[];
+      // this.currentKeys=[];
+      // this.currentPrimaryKey=""
+      // this.currentPublicKey=""
+        this.Accs=[
+    {
+      privateKey: "bfa99fd3c5fd3972f5700b488911df8765840b20ef29f5aae75e159edf162043",
+      publicKey: "0000",
+      password: "fe091db5d84fc443626b38ed86109243f16510f72894938badbc32c1ee019c37"
+    },
+    {
+      privateKey: "7fc769dcf2c4830e7d0261cac8af535f58301296004022bf90ec7e7391ab6094",
+      publicKey: "3438ce5327cf404282bd9772de206ac99403ea3fe201e04b0356d1ec289da86c",
+      password: "1",
+      name: "11111111",
+      dateTime: "23:47:33 05:08:2024",
+      key01: "Precentor",
+      key02: "Unsugared",
+      key03: "Bluestocking",
+      key04: "Bargeman",
+      key05: "Showerhead",
+      key06: "Lunatic"
+    },
+    {
+      privateKey: "8e3dcab58957fa5f9678283142cd8c546c2023f168bd91436d3c9d65a2c9cfd3",
+      publicKey: "06ff600edb638322c9cb515ebf31fe0ad135000f21abdc9e1a013c39a45f2ce2",
+      password: "2",
+      name: "22222222222",
+      dateTime: "23:48:36 05:08:2024",
+      key01: "News_Report",
+      key02: "Ground_Almond",
+      key03: "Obscenely",
+      key04: "Dry_Vermouth",
+      key05: "Overuse",
+      key06: "Standard_Cell"
+    },
+    {
+      privateKey: "6029f62e9f96c28818891d226f3625be2ade8f7db50251ebd9811d386a502d97",
+      publicKey: "bbec8493bcc785b680e90677d5288fb71089aca1b1246ccb33373e7d925a1203",
+      password: "3",
+      name: "3333333333",
+      dateTime: "23:48:49 05:08:2024",
+      key01: "Surface_Mine",
+      key02: "Terror-struck",
+      key03: "Paiwanic",
+      key04: "Carburise",
+      key05: "Ready_Cash",
+      key06: "St._David"
+    }
+  ],
       this.currentNodeUrl = currentNodeUrl;
 	this.networkNodes = [];
-      this.keys=[];
       this.currentKeys=[];
       this.currentPrimaryKey=""
       this.currentPublicKey=""
+      this.keys= [
+            "7fc769dcf2c4830e7d0261cac8af535f58301296004022bf90ec7e7391ab6094",
+            "8e3dcab58957fa5f9678283142cd8c546c2023f168bd91436d3c9d65a2c9cfd3",
+            "6029f62e9f96c28818891d226f3625be2ade8f7db50251ebd9811d386a502d97"
+      ]
 }
 
 Account.prototype.createAccount = function(password, name){
@@ -115,6 +171,11 @@ function toPascalCase(str) {
 Account.prototype.getAccountByPrivateKey = function(privateKey){
       return this.Accs.find((acc)=>
             acc.privateKey === privateKey);
+}
+
+Account.prototype.getAccountByPublicKey = function(publicKey){
+      return this.Accs.find((acc)=>
+            acc.publicKey === publicKey);
 }
 
 Account.prototype.getProfileAccountByPrivateKey = function(privateKey){

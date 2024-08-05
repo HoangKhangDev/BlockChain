@@ -32,36 +32,41 @@
         <form method="post" action="/">
             <h1>LOGIN FORM</h1>
             <br>
-            Username : <input class="form-control usename" type="text" name="username" placeholder="Username"
+            Private Key : <input class="form-control usename" type="text" name="username" placeholder="Private Key"
                 id="input_username" /></br>
             Password : <input class="form-control password" type="password" name="password" placeholder="Password"
                 id="input_password" on /></br>
-            <input type="button" value="Submit" type="submit" class="btn btn-primary w-100" onclick="loadDoc()">
+            <input type="button" value="Login" type="submit" class="btn btn-primary w-100" onclick="loadDoc()">
             <a class="mt-3 btn btn-warning w-100" href="/">Go GetStarted</a>
         </form>
 
     </div>
     <script>
-        function loadDoc() {
-            let username = $(" [name='username' ]").val();
-            let password = $("[name='password' ]").val();
-            if (username.trim().length <= 0) {
-                alert("Username cannot be empty");
-                return;
-            }
-            if (password.trim().length <= 0) {
-                alert("Password cannot be empty");
-                return;
-            }
-            axios.post('/login', { username: username, password: password })
-                .then((result) => {
-                    alert("Login Success!");
-                    document.location.href = "/login"
-                }).catch((err) => {
-                    alert("Login Failed")
-                });
+                <% if (typeof alert !== 'undefined') { %>
+            alert("Login Success!");
+                        <% } %>
+            function loadDoc() {
+                let username = $(" [name='username' ]").val();
+                let password = $("[name='password' ]").val();
+                if (username.trim().length <= 0) {
+                    alert("Username cannot be empty");
+                    return;
+                }
+                if (password.trim().length <= 0) {
+                    alert("Password cannot be empty");
+                    return;
+                }
 
-        }
+                axios.post('/login', { username: username, password: password })
+                    .then((result) => {
+                        alert("Login Success!");
+                        document.location.href = "/home"
+                    }).catch((err) => {
+                        console.log(err)
+                        alert("Login Failed")
+                    });
+
+            }
 
     </script>
 </body>

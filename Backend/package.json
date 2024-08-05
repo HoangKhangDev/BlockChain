@@ -18,20 +18,24 @@
     "axios": "^1.7.3",
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.6",
+    "cookie-session": "^2.1.0",
     "dependencies": "^0.0.1",
     "ejs": "^3.1.10",
     "express": "^4.16.3",
+    "express-session": "^1.18.0",
     "nodemon": "^1.17.3",
     "random-word-syllables": "^1.0.1",
     "random-words": "^2.0.1",
     "request": "^2.87.0",
     "request-promise": "^4.2.2",
+    "session": "^0.1.0",
     "sha256": "^0.2.0",
     "short-unique-id": "^5.2.0",
     "syllable": "^3.6.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
+    "dotenv": "^16.4.5",
     "nodemon": "^3.1.4"
   }
 }

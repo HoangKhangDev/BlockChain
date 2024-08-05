@@ -13,15 +13,17 @@ var cookieParser = require('cookie-parser');
 const session = require("express-session");
 const path = require('path');
 const axios = require('axios');
+require('dotenv').config();
 
-app.use(
-  session({
-    resave: true,
-    saveUninitialized: true,
-    secret: "somesecret",
-    cookie: { maxAge: 60000 },
-  })
-);
+
+
+// app.use(
+//   session({
+//     secret: ((Math.floor(Math.random())*1000000000).toString()),
+//     cookie: { maxAge: 60000 },
+//   })
+// );
+
 // const generateRandomString = require("./function/randomNonce");
 
 // set the view engine to ejs
@@ -46,17 +48,40 @@ app.get("/", (req, res, next) => {
 })
 
 app.get("/home", (req, res, next) => {
-	res.render("pages/home", { title: "Blockchain", blockchain: bitcoin.chain, nodeAddress: nodeAddress });
-})
+	const cookiePrivateKey = req.cookies.privateKey;
+	const cookiePublicKey = req.cookies.publicKey;
+	if(cookiePrivateKey!=null && cookiePrivateKey.trim().length>0
+		&& cookiePublicKey!=null && cookiePublicKey.trim().length>0){ 
+		const coin = bitcoin.getAllAddressData(cookiePublicKey);
+		const acc= account.getAccountByPrivateKey(cookiePrivateKey);
+		res.render("pages/home", { title: "Home",name: acc.name,coin:coin.addressBalance});
+      } else {
+            res.redirect("/login");
+      }});
+	
+
+app.get("/mine", (req, res) => {
+	const cookiePrivateKey = req.cookies.privateKey;
+	const cookiePublicKey = req.cookies.publicKey;
+	if(cookiePrivateKey!=null && cookiePrivateKey.trim().length>0
+		&& cookiePublicKey!=null && cookiePublicKey.trim().length>0){ 
+		const coin = bitcoin.getAllAddressData(cookiePublicKey);
+		const acc= account.getAccountByPrivateKey(cookiePrivateKey);
+            res.render("pages/mine", { title: "Mine ", account:account,coin:coin.addressBalance,name:acc.name,privateKey:acc.privateKey,publicKey:acc.publicKey,name:acc.name});
+      } else {
+            res.redirect("/login");
+      }});
+
+
 
 app.get("/history", (req, res)=>{
 	const cookiePrivateKey = req.cookies.privateKey;
 	const cookiePublicKey = req.cookies.publicKey;
 	if(cookiePrivateKey!=null && cookiePrivateKey.trim().length>0
 		&& cookiePublicKey!=null && cookiePublicKey.trim().length>0){ 
-      	const addressData= bitcoin.getAddressData(cookiePublicKey);
-		console.log(addressData)
-            res.render("pages/history", { title: "History ", addressData : addressData.addressTransactions});
+		const addressData = bitcoin.getAllAddressData(cookiePublicKey);
+		const acc= account.getAccountByPrivateKey(cookiePrivateKey);
+		res.render("pages/history", { title: "History",name: acc.name,coin:addressData.addressBalance,addressData : addressData.addressTransactions});
       } else {
             res.redirect("/login");
       }});
@@ -64,10 +89,11 @@ app.get("/history", (req, res)=>{
 app.get("/profileTransaction", (req, res)=>{
 	const cookiePrivateKey = req.cookies.privateKey;
 	const cookiePublicKey = req.cookies.publicKey;
-	const coin = bitcoin.getAddressData(cookiePublicKey);
 	if(cookiePrivateKey!=null && cookiePrivateKey.trim().length>0
 		&& cookiePublicKey!=null && cookiePublicKey.trim().length>0){ 
-			res.render("pages/transaction", { title: "Transaction ",coin : coin});
+			const coin = bitcoin.getAllAddressData(cookiePublicKey);
+			const acc= account.getAccountByPrivateKey(cookiePrivateKey);
+			res.render("pages/transaction", { title: "Transaction ",coin : coin.addressBalance,name: acc.name});
       } else {
             res.redirect("/login");
 }});
@@ -75,25 +101,35 @@ app.get("/profileTransaction", (req, res)=>{
 app.post("/profileTransaction", (req, res)=>{
 	const cookiePrivateKey = req.cookies.privateKey;
 	const cookiePublicKey = req.cookies.publicKey;
-	
+	const recipient =req.body.recipient;
+	if(recipient==cookiePublicKey){
+		res.status(203).send("You can't send money to yourself");
+            return;
+	}
+	const acc= account.getAccountByPublicKey(recipient);
 	if(cookiePrivateKey!=null && cookiePrivateKey.trim().length>0
-		&& cookiePublicKey!=null && cookiePublicKey.trim().length>0){ 
-			console.log(`${port}/transaction/broadcast`)
-			axios({
-				method: 'post',
-				url: `http://localhost:${port}/transaction/broadcast`,
-				data: {
-					amount:req.body.amount,
-                              sender: cookiePublicKey,
-                              recipient: req.body.recipient,
-				}
-			}).then((response)=>{
-				console.log(response)
-				res.status(200).send("Success send");
-			}).catch((error)=>{
-				console.log(error)
-				res.status(400).send("Failed send");
-			});
+		&& cookiePublicKey!=null && cookiePublicKey.trim().length>0
+			){ 
+			if(acc!=undefined && acc!=null){
+				axios({
+					method: 'post',
+					url: `${process.env.WEB_HOST}/transaction/broadcast`,
+					data: {
+						amount:req.body.amount,
+						sender: cookiePublicKey,
+						recipient: recipient,
+					}
+				}).then((response)=>{
+					res.status(200).json({message:"Success send",coin:
+					bitcoin.getAllAddressData(cookiePublicKey).addressBalance});
+				}).catch((error)=>{
+					res.status(201).json({message:"Failed send"});
+				});
+			}
+			else{
+                        res.status(202).send({message:"Account not found"});
+                  }
+			
       } else {
             res.redirect("/login");
       }});
@@ -104,13 +140,13 @@ app.get("/profile", (req, res)=>{
 	if(cookiePrivateKey!=null && cookiePrivateKey.trim().length>0
 		&& cookiePublicKey!=null && cookiePublicKey.trim().length>0){ 
 		const acc = account.getProfileAccountByPrivateKey(cookiePrivateKey);
+		const coin = bitcoin.getAllAddressData(cookiePublicKey);
 		if(acc==null){
                   res.clearCookie("publicKey");
                   res.clearCookie("privateKey");
 			res.redirect("/login");
             }
-		console.log(acc)
-            res.render("pages/profile", { title: "Profile", account :acc });
+            res.render("pages/profile", { title: "Profile", account :acc ,name:acc.name,coin:coin.addressBalance});
       } else {
             res.redirect("/login");
       }
@@ -122,6 +158,12 @@ app.get("/profile", (req, res)=>{
 
 app.get("/login", (req, res, next) => {
 	res.render("pages/login", { title: "Login" });
+});
+
+app.get("/logout", (req, res, next) => {
+  	res.clearCookie("publicKey");
+	res.clearCookie("privateKey");
+	res.redirect("/login");
 });
 
 
@@ -165,20 +207,20 @@ app.post("/register", (req, res, next) => {
 app.post("/login", (req, res, next) => {
 	const username = req.body.username;
 	const password = req.body.password;
-	console.log(username, password);
-	if(username!=null && password!=null) {
-		res.status(200).send("login Success")
+	const acc=account.getAccountByPrimaryKeyAndPassword(req.body.username,req.body.password);
+	console.log("Post Login", username, password)
+	if(username!=null && password!=null
+		&& acc!=null
+	)  {
+		console.log("allow Login")
+		res.cookie("publicKey", acc.publicKey,{ maxAge: 900000, httpOnly: true });
+		res.cookie("privateKey", acc.privateKey,{ maxAge: 900000, httpOnly: true });
+		res.render("pages/login", { title: "Login",alert:true });
 	}
 	else{
 		res.status(404).send("login Failed")
 	}
-	// if(account.getAccountByPrimaryKeyAndPassword(req.body.username,req.body.password)){
-      //       req.session.user = account.getAccountByPrimaryKeyAndPassword(req.body.privateKey,req.body.password);
-      //       res.redirect('/dashboard');
-      // }else{
-      //       res.redirect('/login');
-      // }
-}
+      }
 )
 
 //account 
@@ -310,9 +352,11 @@ function postMineBlock(req, res) {
 		return rp(requestOptions);
 	})
 	.then(data => {
-		res.json({
+		const coin =  bitcoin.getAllAddressData(recipient).addressBalance
+		res.status(200).json({
 			note: "New block mined & broadcast successfully",
-			block: newBlock
+			block: newBlock,
+			coin:coin
 		});
 	});
 };
@@ -520,6 +564,16 @@ app.get('/block-explore', function(req,res){
 	res.sendFile("./block-explorer/index.html",{ root : __dirname})
 })
 
+
+
+const calcExecuteTime = async (name, context, fn) => {
+  const start = process.hrtime();
+  const result = await fn.call(context);
+  const stop = process.hrtime(start);
+  const executeTime = (stop[0] * 1e9 + stop[1]) / 1e9;
+  console.log(`${name} execution time: ${executeTime}s`);
+  return result;
+};
 
 
 app.listen(port, function() {
