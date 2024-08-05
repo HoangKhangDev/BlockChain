@@ -115,6 +115,13 @@ Account.prototype.createAccount = function(password, name){
             console.log("create  account successfully")
             return acc;
 }
+
+Account.prototype.createAccountFromBroadNodeOther= function(acc){
+      console.log("Create createAccountFromBroadNodeOther");
+      this.Accs.push(acc);
+      this.keys.push(acc.privateKey);
+      return acc;
+}
       
 Account.prototype.hash = function(key01,key02,key03,key04,key05,key06,difficulty){
       const rand= uid.stamp(difficulty);
@@ -243,4 +250,6 @@ function formatDateFromTimestamp(timestamp) {
     
     return `${hours}:${minutes}:${seconds} ${day}:${month}:${year}`;
 }
+
+
 module.exports = Account;

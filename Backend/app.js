@@ -56,7 +56,7 @@ app.get("/home", (req, res, next) => {
 		const acc= account.getAccountByPrivateKey(cookiePrivateKey);
 		res.render("pages/home", { title: "Home",name: acc.name,coin:coin.addressBalance});
       } else {
-            res.redirect("/login");
+            res.redirect("/logout");
       }});
 	
 
@@ -69,7 +69,7 @@ app.get("/mine", (req, res) => {
 		const acc= account.getAccountByPrivateKey(cookiePrivateKey);
             res.render("pages/mine", { title: "Mine ", account:account,coin:coin.addressBalance,name:acc.name,privateKey:acc.privateKey,publicKey:acc.publicKey,name:acc.name});
       } else {
-            res.redirect("/login");
+            res.redirect("/logout");
       }});
 
 
@@ -83,7 +83,7 @@ app.get("/history", (req, res)=>{
 		const acc= account.getAccountByPrivateKey(cookiePrivateKey);
 		res.render("pages/history", { title: "History",name: acc.name,coin:addressData.addressBalance,addressData : addressData.addressTransactions});
       } else {
-            res.redirect("/login");
+            res.redirect("/logout");
       }});
 
 app.get("/profileTransaction", (req, res)=>{
@@ -95,7 +95,7 @@ app.get("/profileTransaction", (req, res)=>{
 			const acc= account.getAccountByPrivateKey(cookiePrivateKey);
 			res.render("pages/transaction", { title: "Transaction ",coin : coin.addressBalance,name: acc.name});
       } else {
-            res.redirect("/login");
+            res.redirect("/logout");
 }});
 
 app.post("/profileTransaction", (req, res)=>{
@@ -131,7 +131,7 @@ app.post("/profileTransaction", (req, res)=>{
                   }
 			
       } else {
-            res.redirect("/login");
+            res.redirect("/logout");
       }});
 
 app.get("/profile", (req, res)=>{
@@ -144,11 +144,11 @@ app.get("/profile", (req, res)=>{
 		if(acc==null){
                   res.clearCookie("publicKey");
                   res.clearCookie("privateKey");
-			res.redirect("/login");
+			res.redirect("/logout");
             }
             res.render("pages/profile", { title: "Profile", account :acc ,name:acc.name,coin:coin.addressBalance});
       } else {
-            res.redirect("/login");
+            res.redirect("/logout");
       }
 });
 
@@ -185,23 +185,50 @@ app.post("/register", (req, res, next) => {
       }
 	else{
 		const acc=account.createAccount(password, username);
-		res.cookie("publicKey", acc.publicKey,{ maxAge: 900000, httpOnly: true });
-		res.cookie("privateKey", acc.privateKey,{ maxAge: 900000, httpOnly: true });
-		res.render("pages/register", { 
-		title: "Blockchain",
-		alert:alert,
-		key: true,
-		privateKey: acc.privateKey,
-		publicKey:acc.publicKey,
-		key01:acc.key01,
-		key02:acc.key02,
-            key03:acc.key03,
-            key04:acc.key04,
-            key05:acc.key05,
-            key06:acc.key06,
-            });
+
+		const requestPromises = [];
+		bitcoin.networkNodes.forEach(networkNodeUrl => {
+			console.log(networkNodeUrl + '/register')
+			const requestOptions = {
+				uri: networkNodeUrl + '/register-account-for-all-node',
+				method: 'POST',
+				body: {
+					account:acc
+				},
+				json: true
+			};
+			requestPromises.push(rp(requestOptions));
+		});
+
+		Promise.all(requestPromises)
+		.then(data => {
+			res.cookie("publicKey", acc.publicKey,{ maxAge: 900000, httpOnly: true });
+			res.cookie("privateKey", acc.privateKey,{ maxAge: 900000, httpOnly: true });
+			res.render("pages/register", { 
+			title: "Blockchain",
+			alert:alert,
+			key: true,
+			privateKey: acc.privateKey,
+			publicKey:acc.publicKey,
+			key01:acc.key01,
+			key02:acc.key02,
+			key03:acc.key03,
+			key04:acc.key04,
+			key05:acc.key05,
+			key06:acc.key06,
+			});		
+		});
+
+
+		
 	}
 	
+})
+
+app.post('/register-account-for-all-node', function(req, res) {
+	console.log("Register for all node", req.body.account)
+      account.createAccountFromBroadNodeOther(req.body.account);
+      res.status(200).send("Success Register for all node");
 })
 
 app.post("/login", (req, res, next) => {
@@ -262,8 +289,35 @@ app.post('/account/change', function(req, res) {
 	const password = req.body.password?req.body.password : "";
 	const name = req.body.name?req.body.name :"";
 	account.changeProfile(privateKey,password,name);
+	const requestPromises = [];
+	bitcoin.networkNodes.forEach(networkNodeUrl => {
+		const requestOptions = {
+			uri: networkNodeUrl + '/account/change-profile-for-All-node',
+			method: 'POST',
+			body: {
+				privateKey: privateKey,
+                        password: password,
+                        name: name
+			},
+			json: true
+		};
+
+		requestPromises.push(rp(requestOptions));
+	});
+
+	Promise.all(requestPromises)
+	.then(data => {
+		res.status(200).json({ note: 'Transaction created and broadcast successfully.' });
+	});
 	res.send("Profile is changed")
 });
+
+app.post('/account/change-profile-for-All-node', function(req, res) {
+	const privateKey = req.body.privateKey?req.body.privateKey:res.send("Account not found");
+	const password = req.body.password?req.body.password : "";
+	const name = req.body.name?req.body.name :"";
+	account.changeProfile(privateKey,password,name);
+})
 
 app.post('/account/mine', function(req, res) {
 	console.log("Account Mine")
@@ -430,6 +484,7 @@ app.post('/receive-new-block', function(req, res) {
 		});
 	}
 });
+
 
 
 // register a node and broadcast it the network
