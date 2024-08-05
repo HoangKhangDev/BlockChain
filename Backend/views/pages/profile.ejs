@@ -157,8 +157,8 @@
                 key06: key06
             })
                 .then((result) => {
-                    alert("Change Profile Success!");
-                    // document.location.href = "/login"
+                    if (result.status == 200) {
+                        alert(result.data.note)
                     $(" [name='name' ]").val("");
                     $("[name='password' ]").val("");
                     $("[name='key01' ]").val("");
@@ -167,6 +167,9 @@
                     $("[name='key04' ]").val("");
                     $("[name='key05' ]").val("");
                     $("[name='key06' ]").val("");
+                    return;
+                }
+                alert(result.data);
                 }).catch((err) => {
                     alert("Invalid Key 01 - 06 please re-check!!!")
                 });

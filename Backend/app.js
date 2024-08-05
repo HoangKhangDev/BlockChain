@@ -284,10 +284,13 @@ app.post('/account/change', function(req, res) {
 	);
 	
 	if(acc==null){
-		res.send("Account not found");
+		res.status(201).send("Invalid Account ");
+		return;
 	}
+	res.status(200);
 	const password = req.body.password?req.body.password : "";
 	const name = req.body.name?req.body.name :"";
+	
 	account.changeProfile(privateKey,password,name);
 	const requestPromises = [];
 	bitcoin.networkNodes.forEach(networkNodeUrl => {
@@ -307,9 +310,9 @@ app.post('/account/change', function(req, res) {
 
 	Promise.all(requestPromises)
 	.then(data => {
-		res.status(200).json({ note: 'Transaction created and broadcast successfully.' });
+		res.status(200).json({note: 'Password changed successfully.' });
 	});
-	res.send("Profile is changed")
+	// res.send("Profile is changed")
 });
 
 app.post('/account/change-profile-for-All-node', function(req, res) {
@@ -323,6 +326,10 @@ app.post('/account/mine', function(req, res) {
 	console.log("Account Mine")
 	postMineBlock(req, res);
 });
+
+app.get('/forgot-password', function(req, res) {
+	res.render("pages/forgotpassword", { title: "Forgot Password",});
+})
 
 
 
